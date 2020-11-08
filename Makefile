@@ -10,7 +10,7 @@ FOLDERS = * iso/modules/* utils/* drivers/* drivers/hardware/* kernel/* kernel/g
 FOLDERS_W_PREFIX = $(addprefix ${SOURCE}/, $(FOLDERS))
 C_FILES = $(addsuffix .c, $(FOLDERS_W_PREFIX))
 C_HEADERS = $(addsuffix .h, $(FOLDERS_W_PREFIX))
-NASM_FILES = $(addsuffix .s, $(FOLDERS_W_PREFIX))
+NASM_FILES = $(addsuffix .S, $(FOLDERS_W_PREFIX))
 BIN_FILES = $(addsuffix .asm, $(FOLDERS_W_PREFIX))
 
 # wildcard to find all c source and header files and assembly object files required to build
@@ -21,7 +21,7 @@ BIN_SOURCES = $(wildcard ${BIN_FILES})
 
 # generate a list of all the compiled files
 OBJ = ${C_SOURCES:${SOURCE}/%.c=${OUTPUT}/%.o}
-OBJ += ${NASM_SOURCES:${SOURCE}/%.s=${OUTPUT}/%.o}
+OBJ += ${NASM_SOURCES:${SOURCE}/%.S=${OUTPUT}/%.o}
 
 MODULES = ${BIN_SOURCES:${SOURCE}/%.asm=${OUTPUT}/%.bin}
 
@@ -42,7 +42,7 @@ ISO_MAKER = $(if $(is_darwin), mkisofs, genisoimage)
 # a BUNCH of flags required in order for our compiled files to not have unnecessary extra code
 # ALSO treat all warnings as errors
 # also build with i386 (x32)
-CFLAGS = -nostdlib -ffreestanding -fno-stack-protector \
+CFLAGS = -nostdlib -nostdinc -ffreestanding -fno-stack-protector \
              -Wall -Wextra -Werror -c
 LD_FLAGS = -T link.ld
 
@@ -66,10 +66,11 @@ run-bochs: os.iso
 	bochs -f bochsrc.txt -q
 
 run: kernel8.img
+	@echo "Use Alt + A X to quit."
 	qemu-system-aarch64 -nographic -M raspi3 -kernel kernel8.img
 
 # qemu debug to monitor registers, memory, etc. However, there is no serial output to stdio.
-qemu-monitor: os.iso
+qemu-monitor: kernel8.img
 	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -monitor stdio
 
 .SECONDEXPANSION:
@@ -78,8 +79,8 @@ $(OUTPUT)/%.o: ${SOURCE}/%.c ${HEADERS} | $$(@D)/.
 	${CC} ${CFLAGS} -c $< -o $@
 
 .SECONDEXPANSION:
-$(OUTPUT)/%.o: ${SOURCE}/%.s | $$(@D)/.
-	${CC} $< -f elf -o $@
+$(OUTPUT)/%.o: ${SOURCE}/%.S | $$(@D)/.
+	${CC} ${CFLAGS} $< -o $@
 
 .SECONDEXPANSION:
 $(OUTPUT)/%.bin: ${SOURCE}/%.asm | $$(@D)/.
@@ -87,5 +88,4 @@ $(OUTPUT)/%.bin: ${SOURCE}/%.asm | $$(@D)/.
 
 # remove build folder and iso output
 clean:
-	rm -rf build os.iso
-	rm -rf bochslog.txt com1.txt
+	rm -rf build kernel8.img
