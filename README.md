@@ -1,2 +1,3 @@
-# KrapOS
-A very functional and not Krappy OS
+# PistachiOS
+
+A simple ARM OS that runs on Raspberry Pi

@@ -42,7 +42,7 @@ ISO_MAKER = $(if $(is_darwin), mkisofs, genisoimage)
 # a BUNCH of flags required in order for our compiled files to not have unnecessary extra code
 # ALSO treat all warnings as errors
 # also build with i386 (x32)
-CFLAGS = -nostdlib -nostdinc -ffreestanding -fno-stack-protector \
+CFLAGS = -nostdlib -ffreestanding -fno-stack-protector \
              -Wall -Wextra -Werror -c
 LD_FLAGS = -T link.ld
 
