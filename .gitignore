@@ -4,3 +4,4 @@ kernel8.img
 
 # Ignore Mac's DS Store
 **/.DS_Store
+.vscode/**
