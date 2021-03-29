@@ -8,6 +8,7 @@ void uart_putchar(char character)
 		if(kget32(AUX_MU_LSR_REG) & WRITE_DATA_RDY) 
 			break;
 	}
+
 	kput32(AUX_MU_IO_REG,character);
 }
 
