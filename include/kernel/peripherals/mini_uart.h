@@ -26,6 +26,6 @@ void uart_putchar(char character);
 
 char uart_getchar();
 
-void uart_printf(char* str, ...);
+void uart_print(char* str, ...);
 
 #endif /* P_OS_KERNEL_PERIPHERALS_MINI_UART_H */

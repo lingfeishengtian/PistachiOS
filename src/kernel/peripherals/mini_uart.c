@@ -20,7 +20,7 @@ char uart_getchar()
 	return(kget32(AUX_MU_IO_REG)&0xFF);
 }
 
-void uart_printf(char* str, ...)
+void uart_print(char* str, ...)
 {
 	for (int i = 0; str[i] != '\0'; i ++) {
 		uart_putchar((char)str[i]);
