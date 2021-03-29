@@ -4,7 +4,6 @@
 OUTPUT = build
 SOURCE = src
 
-FILE_SEPARATOR = /
 CMD_PREFIX = 
 
 # a BUNCH of flags required in order for our compiled files to not have unnecessary extra code
@@ -12,13 +11,10 @@ CMD_PREFIX =
 CFLAGS = -nostdlib -ffreestanding -fno-stack-protector \
              -Iinclude -Wall -Wextra -Werror -c
 LD_FLAGS = -T link.ld
-MKDIR_FLAGS = 
 
 ifeq ($(OS), Windows_NT)
 	CMD_PREFIX = aarch64-none-elf-
 else
-# The mkdir option -p is required on all other operating systems other than linux
-	MKDIR_FLAGS = -p
 	uname = $(shell uname -s)
 	ifeq ($(uname), Darwin)
 		CMD_PREFIX = aarch64-none-elf-
@@ -51,10 +47,18 @@ kernel8.img: $(OUTPUT)/kernel.elf $(MODULES)
 
 # a bunch of extra targets to create the build folders
 $(OUTPUT)/.:
+ifeq ($(OS), Windows_NT)
 	mkdir $(MKDIR_FLAGS) $(subst /,\,$@)
+else
+	mkdir -p $@
+endif
 
-$(OUTPUT)%/.: 
+$(OUTPUT)%/.:
+ifeq ($(OS), Windows_NT)
 	mkdir $(MKDIR_FLAGS) $(subst /,\,$@)
+else
+	mkdir -p $@
+endif
 
 # kernel
 $(OUTPUT)/kernel.elf: $(OBJ)
@@ -62,7 +66,7 @@ $(OUTPUT)/kernel.elf: $(OBJ)
 
 run: kernel8.img
 	@echo "Use Alt + A X to quit."
-	qemu-system-aarch64 -nographic -M raspi3 -kernel kernel8.img
+	qemu-system-aarch64 -serial null -serial mon:stdio -nographic -M raspi3 -kernel kernel8.img
 
 # qemu debug to monitor registers, memory, etc. However, there is no serial output to stdio.
 qemu-monitor: kernel8.img
