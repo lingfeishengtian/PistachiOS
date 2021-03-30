@@ -7,14 +7,16 @@
 .global _stack_init
 
 _start:
-    mrs     x1, mpidr_el1   // Read the Multiprocessor Affinity Register EL1
-    and     x1, x1, #0xFF   // Retrieve the bottom 8 bits which specify the processor and set the compare flag
-    cbz     x1, preboot     // If compare flag is 0, then move to boot
+    mrs     x0, mpidr_el1   // Read the Multiprocessor Affinity Register EL1
+    and     x0, x0, #0xFF   // Retrieve the bottom 8 bits which specify the processor and set the compare flag
+    adr     x1, boot
+    cbz     x0, _preboot     // If compare flag is 0, then move to boot
     wfe
     b       _stack_init
 
 // Pre-Boot changes the exception level from 2 to 1 (since we are on qemu)
-preboot:
+// Additionally returns to the address specified by x1
+_preboot:
 	ldr	x0, =SCTLR_VALUE_MMU_DISABLED   
 	msr	sctlr_el1, x0		
 
@@ -23,9 +25,8 @@ preboot:
 
 	ldr	x0, =HCR_VALUE
 	msr	hcr_el2, x0
-    
-	adr	x0, boot		
-	msr	elr_el2, x0
+    	
+	msr	elr_el2, x1
 
 	ldr	x0, =SPSR_VALUE
 	msr	spsr_el2, x0
@@ -34,6 +35,7 @@ preboot:
 
 boot:
     // clear bss
+    sev
     ldr     x1, =__bss_start    // Store start address of bss at w1
     ldr     w2, =__bss_size     // Store size of the bss at w2
 
@@ -43,37 +45,26 @@ clear_bss_loop:
     subs    w2, w2, #1          // Subtract 1 from the size (since the linker file shifted three times to the right) and set condition flag
     bgt     clear_bss_loop      // If the size is greater than 0, continue clearing bss
 
-    sev
-    mov x0, #0
-	adr x0, _stack_init
-
-	mov x1, #0xe0
-	str x0, [x1]
-	mov x1, #0xe8
-	str x0, [x1]	
-	mov x1, #0xf0
-	str x0, [x1]
-
 _stack_init:
+    mrs	    x0, mpidr_el1       // Check processor ID
+	and	    x0, x0, #0xFF       // Take only bottom 8 bits
 
-    mrs	    x0, mpidr_el1
-	and	    x0, x0, #0xFF
-
-	mov	    x1, #SECTION_SIZE
+	mov	    x1, #SECTION_SIZE   
 	mul	    x1, x1, x0
 	add	    x1, x1, #LOW_MEMORY
-	mov	    sp, x1
+	mov	    sp, x1              // Based on the processor ID, set a different stack address
 
-    cbz     x0, jmp_kernel
+    cbz     x0, jmp_kernel      // If processor 0, initialize kernel
 
-    mov     x2, #30000
-    mov     x3, x0
-	mul	    x0, x2, x0
+    mov     x2, x0              // Otherwise, store processor ID in x2 (need later)
+    bl      kgetEL              // Get exception level, since may have not changed to 1 yet
+    cmp     x0, #1              // Compare with 1
 
-	bl	    kdelay
-    mov     x0, x3
+    mov     x0, x2              // Restore processor ID to x0 for _preboot first parameter
+    adr     x1, _stack_init     // Store _stack_init as the return address for _preboot second parameter
+    bne     _preboot            // Call _preboot and rerun _stack_init
 
-    bl      secondary_cores_main
+    bl      secondary_cores_main    // Call secondary cores main function
     b       hang
 
     // jump to C code, should not return

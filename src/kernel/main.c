@@ -4,7 +4,7 @@
 #include "utils/printf.h"
 #include "utils/utils.h"
 
-volatile bool busy = false;
+bool processor_init_status[4];
 extern void _stack_init();
 
 /**
@@ -23,7 +23,9 @@ void init_debug_utils(){
 
 void kernel_main(){
     init_debug_utils();
-    printf("Current Exception Level: %d\n", kgetEL());
+    printf("Current Exception Level for Processor %d: %d\n", 0, kgetEL());
+
+    processor_init_status[0] = true;
 
     wakeup_core(1, _stack_init);
     wakeup_core(2, _stack_init);
@@ -37,13 +39,10 @@ void kernel_main(){
 }
 
 void secondary_cores_main(uint64_t processorID){
-    while(busy){
-        kdelay(10);
-    }
+    while(!processor_init_status[processorID - 1]) {}
 
-    busy = true;
-    printf("Processor %d loaded.\n", processorID);
-    busy = false;
+    printf("Current Exception Level for Processor %d: %d\n", processorID, kgetEL());
+    processor_init_status[processorID] = true;
 
     return;
 }
