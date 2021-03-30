@@ -66,7 +66,8 @@ $(OUTPUT)/kernel.elf: $(OBJ)
 
 run: kernel8.img
 	@echo "Use Alt + A X to quit."
-	qemu-system-aarch64 -serial null -chardev stdio,id=uart1 -serial chardev:uart1 -M raspi3 -kernel kernel8.img
+# Modify this line to specify which UART you would like to use to log. The first serial describes UART0 while the second serial describes UART1 or Mini-UART
+	qemu-system-aarch64 -serial stdio -serial null -M raspi3 -kernel kernel8.img
 
 # qemu debug to monitor registers, memory, etc. However, there is no serial output to stdio.
 qemu-monitor: kernel8.img

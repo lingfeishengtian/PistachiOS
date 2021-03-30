@@ -7,15 +7,12 @@
 // From the PL011 ARM Manual
 #define UART0_BASE      (P_BASE + 0x201000)
 
-#define UART0_DR	    (UART0_BASE+0)
-#define UART0_RSRECR	(UART0_BASE+0x4)
-#define UART0_FR    	(UART0_BASE+0x18)
+#define UART0_DATA	    (UART0_BASE+0)
+#define UART0_FLAG    	(UART0_BASE+0x18)
 #define UART0_IBRD	    (UART0_BASE+0x24)
 #define UART0_FBRD	    (UART0_BASE+0x28)
 #define UART0_LCRH	    (UART0_BASE+0x2c)
-#define UART0_CR	    (UART0_BASE+0x30)
-#define UART0_IMSC      (UART0_BASE+0x38)
-#define UART0_ICR       (UART0_BASE + 0x44)
+#define UART0_CONTROL	(UART0_BASE+0x30)
 
 // Tell us what the data recieved by UART means
 #define READ_DATA_RDY_UART0   (0x10)

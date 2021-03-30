@@ -44,4 +44,12 @@ extern void kdelay(uint64_t cycles);
  */
 extern uint64_t kgetEL();
 
+/**
+ * @brief Wake up core and send them to an address
+ * 
+ * @param core The processor id specified
+ * @param start_addr Address to send the core to
+ */
+extern void wakeup_core(uint64_t core, void* start_addr);
+
 #endif /* P_OS_INCLUDE_UTILS_UTILS_H */
