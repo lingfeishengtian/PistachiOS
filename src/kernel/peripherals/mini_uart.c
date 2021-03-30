@@ -5,7 +5,7 @@
 void uart_putchar(char character)
 {
 	while(1) {
-		if(kget32(AUX_MU_LSR_REG) & WRITE_DATA_RDY) 
+		if(kget32(AUX_MU_LSR_REG) & WRITE_DATA_RDY_UART1) 
 			break;
 	}
 
@@ -15,22 +15,15 @@ void uart_putchar(char character)
 char uart_getchar()
 {
 	while(1) {
-		if(kget32(AUX_MU_LSR_REG) & READ_DATA_RDY) 
+		if(kget32(AUX_MU_LSR_REG) & READ_DATA_RDY_UART1) 
 			break;
 	}
-	return(kget32(AUX_MU_IO_REG)&0xFF);
-}
-
-void uart_print(char* str, ...)
-{
-	for (int i = 0; str[i] != '\0'; i ++) {
-		uart_putchar((char)str[i]);
-	}
+	return(kget32(AUX_MU_IO_REG) & 0xFF);
 }
 
 void init_uart()
 {
-	unsigned int selector;
+	uint32_t selector;
 
 	selector = kget32(GPFSEL1);
 	selector &= ~(7<<12);                   // clean gpio14

@@ -32,4 +32,16 @@ extern uint32_t kget32(uint64_t addr);
  */
 extern void kdelay(uint64_t cycles);
 
+/**
+ * @brief Get the current exception level
+ * 
+ * The current exception level describes the priveliges the program has.
+ * 1) User
+ * 2) Kernel
+ * 3) Hypervisor
+ *
+ * @return uint64_t Return the exception level
+ */
+extern uint64_t kgetEL();
+
 #endif /* P_OS_INCLUDE_UTILS_UTILS_H */

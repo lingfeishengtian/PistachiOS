@@ -9,7 +9,7 @@ CMD_PREFIX =
 # a BUNCH of flags required in order for our compiled files to not have unnecessary extra code
 # ALSO treat all warnings as errors
 CFLAGS = -nostdlib -ffreestanding -fno-stack-protector \
-             -Iinclude -Wall -Wextra -Werror -c
+             -Iinclude -c
 LD_FLAGS = -T link.ld
 
 ifeq ($(OS), Windows_NT)
@@ -66,7 +66,7 @@ $(OUTPUT)/kernel.elf: $(OBJ)
 
 run: kernel8.img
 	@echo "Use Alt + A X to quit."
-	qemu-system-aarch64 -serial null -serial mon:stdio -nographic -M raspi3 -kernel kernel8.img
+	qemu-system-aarch64 -serial null -chardev stdio,id=uart1 -serial chardev:uart1 -M raspi3 -kernel kernel8.img
 
 # qemu debug to monitor registers, memory, etc. However, there is no serial output to stdio.
 qemu-monitor: kernel8.img

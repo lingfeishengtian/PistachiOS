@@ -1,13 +1,34 @@
+#include "kernel/boot/sysreg_conf.h"
+
 .section ".text.boot"
 
 .global _start
 
 _start:
     mrs     x1, mpidr_el1   // Read the Multiprocessor Affinity Register EL1
-    ands    x1, x1, #0xFF   // Retrieve the bottom 8 bits which specify the processor and set the compare flag
-    beq     boot            // If compare flag is 0, then move to boot
+    and     x1, x1, #0xFF   // Retrieve the bottom 8 bits which specify the processor and set the compare flag
+    cbz     x1, preboot     // If compare flag is 0, then move to boot
 hang:                       // Else hang
     b       hang
+
+// Pre-Boot changes the exception level from 2 to 1 (since we are on qemu)
+preboot:
+	ldr	x0, =SCTLR_VALUE_MMU_DISABLED   
+	msr	sctlr_el1, x0		
+
+    ldr x0, = CPACR_VALUE
+    msr CPACR_EL1, x0
+
+	ldr	x0, =HCR_VALUE
+	msr	hcr_el2, x0
+    
+	adr	x0, boot		
+	msr	elr_el2, x0
+
+	ldr	x0, =SPSR_VALUE
+	msr	spsr_el2, x0
+
+	eret	
 
 boot:
     // set stack before code
