@@ -16,7 +16,7 @@
 #define SCTLR_VALUE_MMU_DISABLED	(SCTLR_RESERVED | SCTLR_EE_LITTLE_ENDIAN | SCTLR_I_CACHE_DISABLED | SCTLR_D_CACHE_DISABLED | SCTLR_MMU_DISABLED)
 
 // ***************************************
-// CPACR_EL1, Saved Program Status Register (EL2) Page 383 of AArch64-Reference-Manual.
+// CPACR_EL1, Architectural Feature Access Control Register (EL1) Page 2411 of AArch64-Reference-Manual.
 // ***************************************
 
 #define CPACR_ALLOW_FP          (3 << 20)

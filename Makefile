@@ -71,7 +71,7 @@ run: kernel8.img
 
 # qemu debug to monitor registers, memory, etc. However, there is no serial output to stdio.
 qemu-monitor: kernel8.img
-	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -monitor stdio
+	qemu-system-aarch64 -nographic -M raspi3 -kernel kernel8.img -monitor stdio
 
 .SECONDEXPANSION:
 # Generic rules for wildcards

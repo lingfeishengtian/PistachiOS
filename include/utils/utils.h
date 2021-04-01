@@ -42,7 +42,7 @@ extern void kdelay(uint64_t cycles);
  *
  * @return uint64_t Return the exception level
  */
-extern uint64_t kgetEL();
+extern uint64_t kgetEL(void);
 
 /**
  * @brief Wake up core and send them to an address

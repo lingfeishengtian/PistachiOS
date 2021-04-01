@@ -1,11 +1,14 @@
 #include "standard_types.h"
 #include "kernel/peripherals/mini_uart.h"
 #include "kernel/peripherals/uart.h"
+#include "kernel/exceptions/interrupts.h"
+#include "kernel/exceptions/interrupt_handler.h"
+#include "kernel/timer.h"
 #include "utils/printf.h"
 #include "utils/utils.h"
 
 bool processor_init_status[4];
-extern void _stack_init();
+extern void _stack_init(void);
 
 /**
  * @brief Configure current kernel debugging function.
@@ -23,6 +26,11 @@ void init_debug_utils(){
 
 void kernel_main(){
     init_debug_utils();
+    irq_vector_init();
+    enable_interrupt_controller();
+    unmask_irq();
+    timer_init();
+
     printf("Current Exception Level for Processor %d: %d\n", 0, kgetEL());
 
     processor_init_status[0] = true;
