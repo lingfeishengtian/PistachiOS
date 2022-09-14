@@ -5,6 +5,7 @@ hang1:
 
 .macro handle_exception type
 .align 7
+
 sub	sp, sp, #REGISTER_SIZES
 stp	x28, x29, [sp, #16 * 14]
 str	x30, [sp, #16 * 15]
